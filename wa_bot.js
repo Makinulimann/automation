@@ -2,9 +2,12 @@ const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = requi
 const qrcode = require('qrcode-terminal');
 const express = require('express');
 const pino = require('pino');
+require('dotenv').config();
 
 const app = express();
 app.use(express.json());
+
+const PORT = process.env.WA_BOT_PORT || 3000;
 
 let sock = null; // Global socket reference
 
@@ -79,7 +82,6 @@ app.post('/send-message', async (req, res) => {
     }
 });
 
-const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`\n=========================================`);
     console.log(`Webhook Server berjalan di http://localhost:${PORT}`);

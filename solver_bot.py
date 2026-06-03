@@ -2,16 +2,17 @@ import time
 import pyautogui
 import google.generativeai as genai
 import requests
+import os
 from PIL import Image
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # ================= KONFIGURASI ================= #
-GEMINI_API_KEY = "AIzaSyDKyLzeN3aYHURBaUH1DT_2e1eV_jwUmTM"
-
-# Endpoint (Webhook) dari server lokal bot WhatsApp Anda (Node.js)
-WA_BOT_WEBHOOK_URL = "http://localhost:3000/send-message" 
-
-# Nomor target WhatsApp (biasanya berakhiran @c.us untuk user biasa)
-WA_TARGET_NUMBER = "6288231033266@c.us" 
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+WA_BOT_WEBHOOK_URL = os.getenv("WA_BOT_WEBHOOK_URL", "http://localhost:3000/send-message")
+WA_TARGET_NUMBER = os.getenv("WA_TARGET_NUMBER")
 
 SCREENSHOT_FILENAME = "screenshot_soal.png"
 PROMPT_GEMINI = "berikan penyelesaian/jawaban kode program dari case tersebut untuk soal yang ada di gambar ini."
