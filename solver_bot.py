@@ -15,7 +15,7 @@ WA_BOT_WEBHOOK_URL = os.getenv("WA_BOT_WEBHOOK_URL", "http://localhost:3000/send
 WA_TARGET_NUMBER = os.getenv("WA_TARGET_NUMBER")
 
 SCREENSHOT_FILENAME = "screenshot_soal.png"
-PROMPT_GEMINI = "berikan penyelesaian/jawaban kode program dari case tersebut untuk soal yang ada di gambar ini."
+PROMPT_GEMINI = "berikan penyelesaian/jawaban soal yang ada di gambar ini."
 # =============================================== #
 
 # Konfigurasi Gemini AI
