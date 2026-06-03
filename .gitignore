@@ -1,0 +1,7 @@
+node_modules/
+auth_info_baileys/
+screenshot_soal.png
+.env
+*.log
+__pycache__/
+.vscode/
