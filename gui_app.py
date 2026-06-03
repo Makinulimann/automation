@@ -323,8 +323,15 @@ class SolverGUI:
                 except Exception as e:
                     err_msg = str(e)
                     self._log_safe(f"Error: {err_msg}", "stderr")
-                    if "403" in err_msg or "leaked" in err_msg.lower():
-                        self.root.after(0, lambda: messagebox.showerror("API Key Error", "API Key Gemini Anda diblokir (Leaked/Invalid).\nHarap ganti di file .env"))
+                    
+                    # Deteksi spesifik API Key Invalid (400) atau Leaked (403)
+                    is_api_err = "403" in err_msg or "leaked" in err_msg.lower() or "400" in err_msg or "API_KEY_INVALID" in err_msg
+                    
+                    if is_api_err:
+                        self.root.after(0, lambda: messagebox.showerror("API Key Error", 
+                            "API Key Gemini Anda tidak valid (Invalid) atau diblokir (Leaked).\n\n"
+                            "Harap periksa file .env dan pastikan API Key sudah benar.\n"
+                            "Anda bisa mendapatkan key baru di: https://aistudio.google.com/app/apikey"))
                         self.root.after(0, self._stop)
                         break
 

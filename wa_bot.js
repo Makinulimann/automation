@@ -38,13 +38,24 @@ async function connectToWhatsApp() {
         if (connection === 'close') {
             isConnected = false;
             currentQR = null;
-            const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
+            const statusCode = lastDisconnect?.error?.output?.statusCode;
+            const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
+            
             console.log('[INFO] Koneksi terputus. Alasan:', lastDisconnect?.error?.message || 'Unknown');
+            
             if (shouldReconnect) {
                 console.log('[INFO] Mencoba reconnect...');
                 connectToWhatsApp();
             } else {
-                console.log('[INFO] Anda sudah logged out. Hapus folder auth_info_baileys dan jalankan ulang.');
+                console.log('[INFO] Anda sudah logged out. Menghapus session lama untuk login ulang...');
+                const fs = require('fs');
+                try {
+                    fs.rmSync('auth_info_baileys', { recursive: true, force: true });
+                    console.log('[INFO] Session lama dihapus. Memulai proses login baru...');
+                    connectToWhatsApp(); // Mulai dari awal agar muncul QR
+                } catch (e) {
+                    console.error('[ERROR] Gagal menghapus session:', e.message);
+                }
             }
         } else if (connection === 'open') {
             isConnected = true;
