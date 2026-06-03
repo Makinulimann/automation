@@ -22,18 +22,19 @@ PROMPT_GEMINI = "berikan penyelesaian/jawaban kode program dari case tersebut un
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-3.1-flash-lite')
 
-def send_to_wa_bot(message):
+def send_to_wa_bot(message, target_number=None, webhook_url=None):
     """
     Kirim pesan ke bot WA melalui API lokal.
-    (Bot Node.js Anda perlu menambah fitur endpoint Express)
+    Bisa override nomor target & webhook URL.
     """
+    number = target_number or WA_TARGET_NUMBER
+    url = webhook_url or WA_BOT_WEBHOOK_URL
     try:
         payload = {
-            "number": WA_TARGET_NUMBER,
+            "number": number,
             "message": message
         }
-        # Mengirim POST Request
-        response = requests.post(WA_BOT_WEBHOOK_URL, json=payload, timeout=10)
+        response = requests.post(url, json=payload, timeout=10)
         if response.status_code == 200:
             print("[BERHASIL] Pesan WhatsApp terkirim.")
         else:
@@ -41,10 +42,11 @@ def send_to_wa_bot(message):
     except Exception as e:
         print(f"[ERROR] Tidak dapat terhubung ke WA Bot Webhook. Pastikan bot Node.js berjalan: {e}")
 
-def process_screenshot_and_solve():
+def run_once(target_number=None, webhook_url=None):
     """
-    Fungsi utama untuk mengambil screenshot, kirim ke Gemini, 
-    dan kirim hasilnya ke WA.
+    Jalankan satu siklus: screenshot -> Gemini -> WA.
+    Returns: answer text atau None jika error.
+    Bisa dipanggil dari GUI.
     """
     print("\n--- Memulai proses penyelesaian soal ---")
     try:
@@ -66,12 +68,19 @@ def process_screenshot_and_solve():
         
         # 3. Kirim ke WhatsApp via Bot
         print("[3] Mengirimkan jawaban ke WhatsApp...")
-        send_to_wa_bot(answer)
+        send_to_wa_bot(answer, target_number, webhook_url)
+        
+        return answer
 
     except Exception as e:
-         print(f"[ERROR] Kegagalan sistem: {e}")
+        print(f"[ERROR] Kegagalan sistem: {e}")
+        return None
     finally:
         print("--- Proses selesai ---")
+
+def process_screenshot_and_solve():
+    """Legacy wrapper — panggil run_once()."""
+    return run_once()
 
 def main():
     print("="*40)

@@ -17,17 +17,10 @@ pip install -r requirements.txt
 
 echo.
 echo [OK] Dependencies siap.
-echo [INFO] Menjalankan WA Bot dan Solver...
+echo [INFO] Membuka Dashboard GUI...
 echo.
 
-:: 3. Jalankan WA Bot di window baru
-start "WA BOT SERVICE" cmd /k "node wa_bot.js"
-
-:: 4. Tunggu sebentar agar WA Bot siap
-timeout /t 5 /nobreak > nul
-
-:: 5. Jalankan Solver di window ini
-echo [INFO] Menjalankan Solver Bot...
-python solver_bot.py
+:: 3. Jalankan GUI (GUI akan handle wa_bot.js & solver_bot.py)
+python gui_app.py
 
 pause

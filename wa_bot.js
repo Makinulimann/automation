@@ -10,6 +10,8 @@ app.use(express.json());
 const PORT = process.env.WA_BOT_PORT || 3000;
 
 let sock = null; // Global socket reference
+let isConnected = false; // Track WA connection state
+let currentQR = null; // Store current QR for GUI display
 
 async function connectToWhatsApp() {
     const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
@@ -25,6 +27,7 @@ async function connectToWhatsApp() {
         const { connection, lastDisconnect, qr } = update;
 
         if (qr) {
+            currentQR = qr;
             console.log('\n=========================================');
             console.log('SCAN QR CODE INI MENGGUNAKAN WHATSAPP ANDA');
             console.log('(Buka WhatsApp > Menu > Perangkat Tertaut > Tautkan Perangkat)');
@@ -33,6 +36,8 @@ async function connectToWhatsApp() {
         }
 
         if (connection === 'close') {
+            isConnected = false;
+            currentQR = null;
             const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
             console.log('[INFO] Koneksi terputus. Alasan:', lastDisconnect?.error?.message || 'Unknown');
             if (shouldReconnect) {
@@ -42,6 +47,8 @@ async function connectToWhatsApp() {
                 console.log('[INFO] Anda sudah logged out. Hapus folder auth_info_baileys dan jalankan ulang.');
             }
         } else if (connection === 'open') {
+            isConnected = true;
+            currentQR = null;
             console.log('\n[INFO] ✅ WhatsApp Bot TERHUBUNG dan SIAP menerima request!');
         }
     });
@@ -49,6 +56,15 @@ async function connectToWhatsApp() {
     // Event: Simpan credentials setiap kali ada update
     sock.ev.on('creds.update', saveCreds);
 }
+
+// Endpoint: Health check / status untuk GUI
+app.get('/status', (req, res) => {
+    res.json({
+        connected: isConnected,
+        qr: currentQR,
+        uptime: process.uptime()
+    });
+});
 
 // Endpoint untuk menerima HTTP POST Request dari Python
 app.post('/send-message', async (req, res) => {
